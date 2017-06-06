@@ -43,8 +43,12 @@ module Danger
 
       authors = {}
       compose_urls(files).each do |url|
-        result = parse_blame(url)
-        authors.merge!(result) { |_, m, n| m + n }
+        begin
+          result = parse_blame(url)
+          authors.merge!(result) { |_, m, n| m + n }
+        rescue OpenURI::HTTPError => ex
+          puts "Wrong URL"
+        end 
       end
 
       reviewers = find_reviewers(authors, user_blacklist, max_reviewers)
@@ -102,25 +106,21 @@ module Danger
         url = url + '?private_token=' + ENV["DANGER_GITLAB_PRIVATE_TOKEN"]
       end
       puts url
-      begin
-        source = open(url, &:read)
-        matches = source.scan(regex).to_a.flatten
+      source = open(url, &:read)
+      matches = source.scan(regex).to_a.flatten
 
-        current = nil
-        lines = {}
+      current = nil
+      lines = {}
 
-        matches.each do |user|
-          if user
-            current = user
-          else
-            lines[current] = lines[current].to_i + 1
-          end
+      matches.each do |user|
+        if user
+          current = user
+        else
+          lines[current] = lines[current].to_i + 1
         end
+      end
 
-        lines
-       rescue OpenURI::HTTPError => ex
-        puts "Wrong URL"
-      end 
+      lines
     end
 
     def find_reviewers(users, user_blacklist, max_reviewers)
