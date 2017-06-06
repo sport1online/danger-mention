@@ -43,11 +43,8 @@ module Danger
 
       authors = {}
       compose_urls(files).each do |url|
-        begin
-          result = parse_blame(url)
-          authors.merge!(result) { |_, m, n| m + n }
-        rescue OpenURI::HTTPError => ex
-        end 
+        result = parse_blame(url)
+        authors.merge!(result) { |_, m, n| m + n } 
       end
 
       puts authors
@@ -105,21 +102,23 @@ module Danger
       if defined? @dangerfile.gitlab
         url = url + '?private_token=' + ENV["DANGER_GITLAB_PRIVATE_TOKEN"]
       end
-      puts url
-      source = open(url, &:read)
-      matches = source.scan(regex).to_a.flatten
+      begin
+        lines = {}
+        source = open(url, &:read)
+        matches = source.scan(regex).to_a.flatten
 
-      current = nil
-      lines = {}
-
-      matches.each do |user|
-        if user
-          current = user
-        else
-          lines[current] = lines[current].to_i + 1
+        current = nil
+        
+        matches.each do |user|
+          if user
+            current = user
+          else
+            lines[current] = lines[current].to_i + 1
+          end
         end
-      end
-
+      rescue OpenURI::HTTPError => ex
+        puts url
+        end
       lines
     end
 
