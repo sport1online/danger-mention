@@ -99,7 +99,7 @@ module Danger
     def parse_blame(url)
       regex = %r{(?:rel="(?:author|contributor)">([^<]+)</a> authored|(?:<tr class="blame-line">))}
       if defined? @dangerfile.gitlab
-        url = url + '?private_token=' + env.danger_gitlab_private_token
+        url = url + '?private_token=' + env["DANGER_GITLAB_PRIVATE_TOKEN"]
       end
       source = open(url, &:read)
       matches = source.scan(regex).to_a.flatten
