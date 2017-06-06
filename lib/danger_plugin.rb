@@ -47,7 +47,6 @@ module Danger
           result = parse_blame(url)
           authors.merge!(result) { |_, m, n| m + n }
         rescue OpenURI::HTTPError => ex
-          puts "Wrong URL"
         end 
       end
 
