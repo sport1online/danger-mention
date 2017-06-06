@@ -102,21 +102,25 @@ module Danger
         url = url + '?private_token=' + ENV["DANGER_GITLAB_PRIVATE_TOKEN"]
       end
       puts url
-      source = open(url, &:read)
-      matches = source.scan(regex).to_a.flatten
+      begin
+        source = open(url, &:read)
+        matches = source.scan(regex).to_a.flatten
 
-      current = nil
-      lines = {}
+        current = nil
+        lines = {}
 
-      matches.each do |user|
-        if user
-          current = user
-        else
-          lines[current] = lines[current].to_i + 1
+        matches.each do |user|
+          if user
+            current = user
+          else
+            lines[current] = lines[current].to_i + 1
+          end
         end
-      end
 
-      lines
+        lines
+       rescue OpenURI::HTTPError => ex
+        puts "Wrong URL"
+      end 
     end
 
     def find_reviewers(users, user_blacklist, max_reviewers)
