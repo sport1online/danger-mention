@@ -101,6 +101,7 @@ module Danger
       if defined? @dangerfile.gitlab
         url = url + '?private_token=' + ENV["DANGER_GITLAB_PRIVATE_TOKEN"]
       end
+      puts url
       source = open(url, &:read)
       matches = source.scan(regex).to_a.flatten
 
