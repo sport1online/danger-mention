@@ -41,10 +41,10 @@ module Danger
       files = select_files(file_blacklist)
       return if files.empty?
 
-      authors = {}
+      authors = []
       compose_urls(files).each do |url|
         result = parse_blame(url)
-        authors.merge!(result) { |_, m, n| m + n } 
+        authors = (authors + result).uniq
       end
 
       puts authors
@@ -103,23 +103,14 @@ module Danger
         url = url + '?private_token=' + ENV["DANGER_GITLAB_PRIVATE_TOKEN"]
       end
       begin
-        lines = {}
+        matches = []
         source = open(url, &:read)
         matches = source.scan(regex).to_a.flatten
         current = nil
-        
-        matches.each do |user|
-          if user
-            current = user
-          else
-            lines[current] = lines[current].to_i + 1
-          end
-        end
       rescue OpenURI::HTTPError => ex
         puts url
-        end
-      puts lines
-      lines
+      	end
+      matches
     end
 
     def find_reviewers(users, user_blacklist, max_reviewers)
@@ -132,7 +123,7 @@ module Danger
       users = users.select { |k, _| !user_blacklist.include? k }
       users = users.sort_by { |_, value| value }.reverse
 
-      users[0...max_reviewers].map { |u| u[0] }.compact
+      users.first(max_reviewers)
     end
 
   end
