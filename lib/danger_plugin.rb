@@ -106,7 +106,7 @@ module Danger
         lines = {}
         source = open(url, &:read)
         matches = source.scan(regex).to_a.flatten
-
+        puts matches
         current = nil
         
         matches.each do |user|
