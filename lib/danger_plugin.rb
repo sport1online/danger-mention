@@ -47,7 +47,6 @@ module Danger
         authors = (authors + result).uniq
       end
 
-      puts authors
       reviewers = find_reviewers(authors, user_blacklist, max_reviewers)
 
       if reviewers.count > 0
