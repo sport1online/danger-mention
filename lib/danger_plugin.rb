@@ -98,7 +98,7 @@ module Danger
     end
 
     def parse_blame(url)
-      regex = %r{(?:rel="(?:author|contributor)">([^<]+)</a> authored|(?:<tr class="blame-line">))}
+      regex = %r{<a class="commit-author-link.*(?:href="/(.*)">)}
       if defined? @dangerfile.gitlab
         url = url + '?private_token=' + ENV["DANGER_GITLAB_PRIVATE_TOKEN"]
       end
